@@ -1,0 +1,40 @@
+name: Update TdLib
+on:
+  push:
+    tags:
+    - 'v*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update credentials
+        run: |
+            git config --local user.email "nitan.marcel@gmail.com"
+            git config --local user.name "Marcel Alexandru Nitan"
+      - name: Get Latest Tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+      - name: Update TdLib submodule
+        run: |
+            git submodule update --init
+      - name: Update TdLib to tag
+        run: |
+            cd td
+            git pull origin ${{steps.tag.outputs.tag}}
+            cd ..
+      - name: Generate Code
+        run: |
+          cd codegen
+          make
+          cd ..
+      - name: Commit Changes
+        run: | 
+            git add .
+            git commit -m "Update tdlib to ${{steps.tag.outputs.tag}}"
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
