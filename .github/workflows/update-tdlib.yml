@@ -15,7 +15,8 @@ jobs:
             git config --local user.name "Marcel Alexandru Nitan"
       - name: Get Latest Tag
         id: tag
-        uses: dawidd6/action-get-tag@v1
+        run: |
+            echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Update TdLib submodule
         run: |
             git submodule update --init
